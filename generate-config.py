@@ -2,6 +2,7 @@
 import subprocess
 import json
 import uuid
+import re
 
 def run_command(cmd):
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -9,14 +10,14 @@ def run_command(cmd):
 
 def generate_keys():
     output = run_command("xray x25519")
-    lines = output.split('\n')
+    # روش بهتر برای استخراج
     private_key = ""
     public_key = ""
-    for line in lines:
+    for line in output.split('\n'):
         if "Private key:" in line:
-            private_key = line.split(":")[1].strip()
+            private_key = line.split("Private key:")[1].strip()
         elif "Public key:" in line:
-            public_key = line.split(":")[1].strip()
+            public_key = line.split("Public key:")[1].strip()
     return private_key, public_key
 
 def main():
@@ -24,7 +25,10 @@ def main():
     private_key, public_key = generate_keys()
     short_id = uuid.uuid4().hex[:8]
     
-    # مسیر درست رو بده
+    # چاپ برای دیباگ
+    print(f"Private Key: {private_key}")
+    print(f"Public Key: {public_key}")
+    
     with open('/etc/xray/config.json', 'r') as f:
         config = json.load(f)
     
